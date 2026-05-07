@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1 English Matching Game</title>
+    <style>
+        body { font-family: 'Comic Sans MS', sans-serif; text-align: center; background-color: #f0f8ff; margin: 0; padding: 20px; }
+        h1 { color: #2c3e50; }
+        .game-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; max-width: 800px; margin: 20px auto; }
+        .card { width: 100px; height: 120px; background-color: #3498db; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; color: white; cursor: pointer; user-select: none; transition: transform 0.3s; }
+        .card.flipped { background-color: #ecf0f1; color: #2c3e50; transform: rotateY(180deg); }
+        .card.matched { background-color: #2ecc71; cursor: default; visibility: hidden; }
+        #controls { margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 1rem; cursor: pointer; background-color: #e67e22; color: white; border: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>🔤 P1 Phonics Match</h1>
+    <div id="controls">
+        <button onclick="startGame()">Restart Game</button>
+    </div>
+    <div class="game-container" id="gameBoard"></div>
+
+    <script>
+        const data = [
+            { w: 'Man', p: '👨' }, { w: 'Sat', p: '🪑' }, { w: 'Pan', p: '🍳' },
+            { w: 'Pat', p: '👋' }, { w: 'Tap', p: '🚰' }, { w: 'Tip', p: '💰' },
+            { w: 'Tin', p: '🥫' }, { w: 'Pin', p: '📍' }, { w: 'Cap', p: '🧢' },
+            { w: 'Cat', p: '🐱' }, { w: 'Pet', p: '🐶' }, { w: 'Jug', p: '🏺' },
+            { w: 'Jam', p: '🍓' }, { w: 'Jet', p: '✈️' }, { w: 'Gap', p: '↔️' },
+            { w: 'Gas', p: '⛽' }, { w: 'Lip', p: '👄' }, { w: 'Leg', p: '🦵' },
+            { w: 'Lap', p: '💻' }, { w: 'Vet', p: '🩺' }, { w: 'Zip', p: '🤐' },
+            { w: 'Zap', p: '⚡' }, { w: 'Yes', p: '✅' }, { w: 'Yet', p: '⏳' }
+        ];
+
+        let cards = [];
+        let flippedCards = [];
+        let matchedCount = 0;
+
+        function startGame() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            flippedCards = [];
+            matchedCount = 0;
+            
+            // For P1, let's pick 8 random pairs each time so it's not too hard
+            const selected = data.sort(() => 0.5 - Math.random()).slice(0, 8);
+            cards = [];
+            selected.forEach(item => {
+                cards.push({ content: item.w, match: item.w, type: 'word' });
+                cards.push({ content: item.p, match: item.w, type: 'pic' });
+            });
+            
+            cards.sort(() => 0.5 - Math.random());
+
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.dataset.index = index;
+                cardElement.innerHTML = '?';
+                cardElement.onclick = () => flipCard(cardElement, card);
+                board.appendChild(cardElement);
+            });
+        }
+
+        function flipCard(el, card) {
+            if (flippedCards.length < 2 && !el.classList.contains('flipped')) {
+                el.classList.add('flipped');
+                el.innerHTML = card.content;
+                flippedCards.push({ el, card });
+
+                if (flippedCards.length === 2) {
+                    checkMatch();
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            if (card1.card.match === card2.card.match) {
+                setTimeout(() => {
+                    card1.el.classList.add('matched');
+                    card2.el.classList.add('matched');
+                    matchedCount += 2;
+                    if (matchedCount === cards.length) alert('Great Job! You matched them all!');
+                    flippedCards = [];
+                }, 600);
+            } else {
+                setTimeout(() => {
+                    card1.el.classList.remove('flipped');
+                    card2.el.classList.remove('flipped');
+                    card1.el.innerHTML = '?';
+                    card2.el.innerHTML = '?';
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
